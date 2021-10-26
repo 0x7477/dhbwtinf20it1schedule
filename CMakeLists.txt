@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(
 dhbwtinf20it1schedule
-VERSION 0.1
+VERSION 0.2
 LANGUAGES CXX
 )
 
@@ -22,4 +22,4 @@ file(GLOB SOURCES src/*.cpp)
 add_executable(${EXEC} ${SOURCES})
 target_link_libraries(${EXEC} curl)
 
-install(TARGETS ${EXEC} DESTINATION bin)
+install(TARGETS ${EXEC} DESTINATION /usr/local/sbin/)
