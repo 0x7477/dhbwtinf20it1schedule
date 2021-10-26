@@ -8,7 +8,7 @@ LANGUAGES CXX
 message(STATUS "Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...\n")
 
 set(CMAKE_BUILD_TYPE          Debug)
-set(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS} -std=c++2a")
+set(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS} -std=gnuc++2a")
 set(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS} -lcurl")
 message(STATUS "Flags are  ${CMAKE_CXX_FLAGS}\n")
 
