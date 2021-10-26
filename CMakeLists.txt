@@ -21,3 +21,5 @@ file(GLOB SOURCES src/*.cpp)
 
 add_executable(${EXEC} ${SOURCES})
 target_link_libraries(${EXEC} curl)
+
+install(TARGETS ${EXEC})
