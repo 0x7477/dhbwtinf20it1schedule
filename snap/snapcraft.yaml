@@ -5,8 +5,8 @@ summary: display the DHBW TINF 20 IT1 schedule in CLI # 79 char long summary
 description: |
   display the DHBW TINF 20 IT1 schedule in CLI.
 
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
 
 parts:
   dhbwtinf20it1schedule:
