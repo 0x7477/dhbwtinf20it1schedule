@@ -35,3 +35,4 @@ parts:
 apps:
   dhbwtinf20it1schedule:
     command: schedule
+    plugs: [network]
