@@ -56,8 +56,6 @@ class course
 
 	void generate()
 	{
-
-		
 		display_string += draw(time + " " + title);
 		if(description != time) display_string += draw(description);
 		if(room != time) display_string += draw("   " + room);
@@ -145,7 +143,8 @@ std::string draw(std::string layout)
 			for(pos = 0; layout.find(" ", pos +1) < textwidth && layout.find(" ", pos +1) != std::string::npos; pos = layout.find(" ", pos +1));
 			if(pos == std::string::npos) pos = layout.length();
 			if(layout.find(" ", pos +1) == std::string::npos) pos = layout.length();
-
+			if(pos == 0) pos = textwidth;
+			
 			std::string line = layout.substr(0,pos);
 			res += "║ ";
 			for(int i = pos; i < textwidth; i++) res += " ";
@@ -170,6 +169,8 @@ std::string draw(std::string layout)
 			for(pos = 0; layout.find(" ", pos +1) < textwidth && layout.find(" ", pos +1) != std::string::npos; pos = layout.find(" ", pos +1));
 			if(pos == std::string::npos) pos = layout.length();
 			if(layout.find(" ", pos +1) == std::string::npos) pos = layout.length();
+			if(pos == 0) pos = textwidth;
+
 
 			std::string line = layout.substr(0,pos);
 			res += "║ " + line;
