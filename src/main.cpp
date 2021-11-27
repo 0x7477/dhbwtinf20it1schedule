@@ -10,8 +10,11 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <fstream>
+//#include <format>
 
 #define MIN_CLASS_WIDTH 30
+#define URL_CONFIG_PATH "/var/snap/dhbw-mannheim-schedule/current/schedule_link"
 
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp);
 std::string getHTML(std::string url);
@@ -97,7 +100,7 @@ std::string getBorderedString(std::string source, std::string start, std::string
 	auto start_pos = source.find(start);
 	auto end_pos = source.find(end,start_pos);
 
-	
+	//std::cout << start_pos << ":" << end_pos;
 	// source.substr(start_pos);
 	return source.substr(start_pos + start.length(), end_pos - start_pos - start.length());
 }
@@ -249,9 +252,10 @@ class day
 	}
 };
 
-int main (int argc, char **argv)
+void displaytable(std::string url)
 {
-    int cols = 80;
+
+int cols = 80;
     int lines = 24;
 
 #ifdef TIOCGSIZE
@@ -269,7 +273,8 @@ int main (int argc, char **argv)
 	setlocale(LC_ALL, "");
 	curl_global_init(CURL_GLOBAL_ALL);	
 
-    std::string url = "https://onlinevault.de";
+    //std::string url = "https://onlinevault.de";
+	//url = "https://vorlesungsplan.dhbw-mannheim.de/index.php?action=view&gid=3067001&uid=8065001";
 	//url = "https://onlinevault.de/index.php?action=view&gid=3067001&uid=8065001&date=1635112800";
 
 	auto html = getBorderedString(getHTML(url),"<div class=\"ui-grid-e\">","<div class=\"footer-txt-l\">");
@@ -336,11 +341,183 @@ int main (int argc, char **argv)
 
 		}
 	}
+}
 
+int getNumber(int lowerbound, int upperbound)
+{
+	int select = 0;
 	
+	for(;;)
+	{
+		std::cin >> select;
+		if (std::cin.fail()) // has a previous extraction failed?
+        {
+			std::cout << "Falsche Eingabe\n";
+            // yep, so let's handle the failure
+            std::cin.clear(); // put us back in 'normal' operation mode
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+		else
+		{
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			if(select >= lowerbound && select <= upperbound) break;
+		}
 
-	
-	//std::cout << html;
+	}
+
+	return select;
+}
+
+void setCourse()
+{
+	std::string url = "https://vorlesungsplan.dhbw-mannheim.de/";
+	auto html = getBorderedString(getHTML(url),"<div class=\"ui-grid-a\">","<div class=\"footer-txt-l\">");
+
+	std::vector<std::string> anchors = std::vector<std::string>();
+
+	size_t lastpos = 0;
+	int i = 0;
+	for(size_t pos = lastpos; lastpos != std::string::npos; pos = html.find("<a", pos +1))
+	{
+		std::string anchor = html.substr(lastpos, pos - lastpos);
+		lastpos = pos;
+
+		if(anchor == "") continue;
+
+		std::string name = getBorderedString(anchor,">","<");
+		if(name == "")continue;
+
+		i++;
+
+		printf("%2d - %s\n",i,name.c_str());
+		//std::cout << std::format("{:2} - {}",i,name) << "\n";
+
+
+		anchors.push_back(getBorderedString(anchor, "href=\"","\">"));
+	}
+
+	int select = getNumber(1,anchors.size());
+
+	//std::cout << select << " - "<< anchors[select-1]<<  "\n";
+	//https://vorlesungsplan.dhbw-mannheim.de/index.php?action=list&gid=3067001
+	//https://vorlesungsplan.dhbw-mannheim.de/index.php?action=list&amp;gid=3067001
+	url += anchors[select-1];
+	url = std::regex_replace(url, std::regex("&amp;"),"&");
+	html = getBorderedString(getHTML(url),"<div data-role=\"content\"","<div class=\"footer-txt-l\">");
+		//std::cout << html << "\n";
+
+	std::vector<std::string> years = std::vector<std::string>();
+
+	lastpos = 0;
+	i = 0;
+	for(size_t pos = lastpos; lastpos != std::string::npos; pos = html.find("<h1", pos +1))
+	{
+		std::string year_sub = html.substr(lastpos, pos - lastpos);
+		lastpos = pos;
+
+		if(year_sub == "") continue;
+
+		std::string name = getBorderedString(year_sub,"<h1>","</h1>");
+		if(name == "" || year_sub.find("<h1>") == std::string::npos)continue;
+
+		i++;
+
+		years.push_back(year_sub);
+		printf("%2d - %s\n",i,name.c_str());
+		//std::cout << year_sub<<"\n\n";
+		//std::cout << std::format("{:2} - {}",i,name) << "\n";
+
+
+		//years.push_back(getBorderedString(anchor, "href=\"","\">"));
+	}
+
+	select = getNumber(1,years.size());
+
+	std::string year = years[select-1];
+	std::vector<std::string> courses = std::vector<std::string>();
+
+	lastpos = 0;
+	i=0;
+	for(size_t pos = lastpos; lastpos != std::string::npos; pos = year.find("<a", pos +1))
+	{
+		std::string year_sub = year.substr(lastpos, pos - lastpos);
+		lastpos = pos;
+
+		if(year_sub == "") continue;
+
+		std::string name = getBorderedString(year_sub,">","</a>");
+		if(name == "" || year_sub.find("<a") == std::string::npos) continue;
+
+		i++;
+		courses.push_back(getBorderedString(year_sub, "href=\"","\">"));
+
+		//years.push_back(year_sub);
+		printf("%2d - %s\n",i,name.c_str());
+		//std::cout << year_sub<<"\n\n";
+		//std::cout << std::format("{:2} - {}",i,name) << "\n";
+
+
+		//years.push_back(getBorderedString(anchor, "href=\"","\">"));
+	}
+
+	select = getNumber(1,courses.size());
+
+
+	url = "https://vorlesungsplan.dhbw-mannheim.de/" + std::regex_replace(courses[select-1], std::regex("&amp;"),"&");
+
+	//std::cout << url << "\n";
+
+	std::ofstream file(URL_CONFIG_PATH, std::fstream::trunc | std::fstream::out);
+	file << url;
+	file.close();
+
+
+}
+
+std::string readCourseUrl()
+{
+	std::ifstream file(URL_CONFIG_PATH);
+	if(!file)
+	{
+		std::ofstream file(URL_CONFIG_PATH, std::fstream::trunc | std::fstream::out);
+		if(!file)
+		{
+			std::cerr << "insufficient permission to write config file in \"" << URL_CONFIG_PATH << "\"\n";
+			exit(0);
+		}
+
+		std::cout << "Please select your course\n";
+		setCourse();
+
+		return readCourseUrl();
+	}
+	else
+	{
+		std::string url;
+
+		std::getline(file,url);
+		return url;
+	}
+
+}
+
+int main (int argc, char **argv)
+{
+	if(argc == 2 && (strcmp(argv[1], "--help")==0 || strcmp(argv[1], "-h")==0))
+	{
+		std::cout << "Displays the DHBW Mannheim schedule.\n\n"
+		<< "  -c, --course          select course.\n"
+		<< "  -h  --help            displays this help page.\n";
+		exit(0);
+	}
+	if(argc == 2 && (strcmp(argv[1], "--course")==0 || strcmp(argv[1], "-c")==0))
+	{
+		setCourse();
+		exit(0);
+	}
+
+    std::string url = readCourseUrl();
+	displaytable(url);
 
 
 }
