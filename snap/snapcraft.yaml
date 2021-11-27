@@ -9,7 +9,7 @@ grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 parts:
-  dhbwtinf20it1schedule:
+  dhbw-mannheim-schedule:
     plugin: cmake
     source: https://github.com/tobiscripter/dhbwtinf20it1schedule.git
     build-packages:
@@ -33,6 +33,6 @@ parts:
     - libwind0-heimdal
 
 apps:
-  dhbwtinf20it1schedule:
+  dhbw-mannheim-schedule:
     command: schedule
     plugs: [network]
